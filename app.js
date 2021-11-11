@@ -9,8 +9,7 @@ var usersRouter = require('./routes/users');
 var vehicleRouter = require('./routes/vehicle');
 var addmodsRouter = require('./routes/addmods');
 var selectorRouter = require('./routes/selector');
-
-
+var Vehicle = require("./models/vehicle"); 
 var app = express();
 
 // view engine setup
@@ -45,5 +44,27 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+const connectionString = process.env.MONGO_CON
 
+mongoose = require('mongoose');
+mongoose.connect(connectionString, {useNewUrlParser: true, useUnifiedTopology: true});
+
+async function recreateDB(){
+  // Delete everything
+  await Vehicle.deleteMany(); 
+ 
+  var results = [{"Brand":"lincoln","price":'10',"size":'large'},
+                 {"Brand":"tesla","price":'7',"size":'small'},
+                 {"Brand":"audi", "price":'15',"size":'large'}]
+ 
+ for(i in results){
+  let instance = new Vehicle({Brand: results[i]["Brand"], price: results[i]["price"], size:results[i]["size"]});
+   instance.save( function(err,doc) {
+     if(err) return console.error(err);
+     console.log("object added.")
+     });
+ } 
+ } 
+ let reseed = true;
+ if (reseed) { recreateDB();} 
 module.exports = app;
